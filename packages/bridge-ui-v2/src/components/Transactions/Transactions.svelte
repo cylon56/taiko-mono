@@ -2,6 +2,8 @@
   import { t } from 'svelte-i18n';
   import type { Address } from 'viem';
 
+  import { activeBridge } from '$components/Bridge/state';
+  import { BridgeTypes } from '$components/Bridge/types';
   import { Card } from '$components/Card';
   import { ChainSelector } from '$components/ChainSelector';
   import { DesktopOrLarger } from '$components/DesktopOrLarger';
@@ -12,6 +14,7 @@
   import { transactionConfig } from '$config';
   import { type BridgeTransaction, fetchTransactions } from '$libs/bridge';
   import { bridgeTxService } from '$libs/storage';
+  import { TokenType } from '$libs/token';
   import { account, network } from '$stores';
   import type { Account } from '$stores/account';
 
@@ -63,27 +66,32 @@
     }
   };
 
+  $: displayTokenTypesBasedOnType =
+    $activeBridge === BridgeTypes.FUNGIBLE ? [TokenType.ERC20, TokenType.ETH] : [TokenType.ERC721, TokenType.ERC1155];
+
+  $: filteredTransactions = transactions.filter((tx) => displayTokenTypesBasedOnType.includes(tx.tokenType));
+
   const updateTransactions = async (address: Address) => {
     const { mergedTransactions, outdatedLocalTransactions, error } = await fetchTransactions(address);
     transactions = mergedTransactions;
+
     if (outdatedLocalTransactions.length > 0) {
       await bridgeTxService.removeTransactions(address, outdatedLocalTransactions);
     }
     if (error) {
-      // Todo: handle different error scenarios
-      warningToast({title: $t('transactions.errors.relayer_offline')});
+      warningToast({ title: $t('transactions.errors.relayer_offline') });
     }
   };
 
   $: pageSize = isDesktopOrLarger ? transactionConfig.pageSizeDesktop : transactionConfig.pageSizeMobile;
 
-  $: transactionsToShow = getTransactionsToShow(currentPage, pageSize, transactions);
+  $: transactionsToShow = getTransactionsToShow(currentPage, pageSize, filteredTransactions);
 
-  $: totalItems = transactions.length;
+  $: totalItems = filteredTransactions.length;
 
   // Some shortcuts to make the code more readable
   $: isConnected = $account?.isConnected;
-  $: hasTxs = transactions.length > 0;
+  $: hasTxs = filteredTransactions.length > 0;
 
   // Controls what we render on the page
   $: renderLoading = loadingTxs && isConnected;
