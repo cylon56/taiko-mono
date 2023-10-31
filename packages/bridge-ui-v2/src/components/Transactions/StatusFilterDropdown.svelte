@@ -8,6 +8,10 @@
 
   export let selectedStatus: MessageStatus | null = null;
 
+  let flipped = false;
+
+  let iconFlipperComponent: IconFlipper;
+
   let menuOpen = false;
 
   const options = [
@@ -25,6 +29,7 @@
 
   const toggleMenu = () => {
     menuOpen = !menuOpen;
+    flipped = !flipped;
   };
 
   $: menuClasses = classNames(
@@ -44,7 +49,13 @@
         ? options.find((option) => option.value === selectedStatus)?.label
         : $t('transactions.filter.all')}
     </span>
-    <IconFlipper iconType1="chevron-left" iconType2="chevron-down" selectedDefault="chevron-left" size={15} />
+    <IconFlipper
+      bind:flipped
+      bind:this={iconFlipperComponent}
+      iconType1="chevron-left"
+      iconType2="chevron-down"
+      selectedDefault="chevron-left"
+      size={15} />
   </button>
 
   {#if menuOpen}

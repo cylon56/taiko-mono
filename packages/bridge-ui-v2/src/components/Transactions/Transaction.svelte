@@ -15,6 +15,7 @@
   import { type NFT, TokenType } from '$libs/token';
   import { fetchNFTImageUrl } from '$libs/token/fetchNFTImageUrl';
   import { getTokenWithInfoFromAddress } from '$libs/token/getTokenWithInfoFromAddress';
+  import { truncateString } from '$libs/util/truncateString';
 
   import ChainSymbolName from './ChainSymbolName.svelte';
   import InsufficientFunds from './InsufficientFunds.svelte';
@@ -192,8 +193,10 @@
         {:else}
           <img alt="nft" src={imgUrl} class="rounded-[10px] min-w-[50px] max-w-[50px] bg-neutral self-center" />
           <div class="f-col text-left">
-            <div class="text-sm">{token?.name}</div>
-            <div class="text-sm text-secondary-content">{token?.metadata?.name}</div>
+            <div class="text-sm">{token?.name ? truncateString(token?.name, 15) : ''}</div>
+            <div class="text-sm text-secondary-content">
+              {token?.metadata?.name ? truncateString(token?.metadata?.name, 15) : ''}
+            </div>
             <div class="text-sm text-secondary-content">{token?.tokenId}</div>
           </div>
         {/if}

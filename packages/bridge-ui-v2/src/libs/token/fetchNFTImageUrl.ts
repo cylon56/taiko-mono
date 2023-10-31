@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { checkForAdblocker } from '$libs/util/checkForAdblock';
+// import { checkForAdblocker } from '$libs/util/checkForAdblock';
 import { extractIPFSCidFromUrl } from '$libs/util/extractIPFSCidFromUrl';
 import { fetchNFTMetadata } from '$libs/util/fetchNFTMetadata';
 import { getFileExtension } from '$libs/util/getFileExtension';
@@ -38,10 +38,6 @@ const useGateway = (url: string, tokenId: number): string | null => {
 
 const fetchImageUrl = async (url: string, tokenId: number): Promise<string> => {
   try {
-    // Check if the URL is blocked by an adblocker
-    const isBlocked = await checkForAdblocker(url);
-    if (isBlocked) throw new Error(`URL is blocked by adblocker: ${url}`);
-
     await axios.get(url);
     return url;
   } catch {
@@ -53,20 +49,14 @@ const fetchImageUrl = async (url: string, tokenId: number): Promise<string> => {
   }
 };
 
+// Main function to fetch NFT image URL
 export const fetchNFTImageUrl = async (token: NFT): Promise<NFT> => {
   try {
-    const metadata = token.metadata || (await fetchNFTMetadata(token));
+    const metadata = token.metadata || (await fetchNFTMetadata(token)); // Assume fetchNFTMetadata is imported
     if (!metadata?.image) throw new Error('No image found');
 
-    const url = safeParseUrl(metadata.image);
+    const url = safeParseUrl(metadata.image); // Assume safeParseUrl is defined elsewhere
     if (!url) throw new Error(`Invalid image URL: ${metadata.image}`);
-
-    // If the URL is blocked by an adblocker, log an error and return the original token
-    const isBlocked = await checkForAdblocker(url);
-    if (isBlocked) {
-      log(`URL is blocked by adblocker: ${url}`);
-      return token;
-    }
 
     const imageUrl = await fetchImageUrl(url, token.tokenId);
     token.metadata = {
