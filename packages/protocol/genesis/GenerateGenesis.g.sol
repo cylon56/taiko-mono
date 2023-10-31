@@ -1,23 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import { console2 } from "forge-std/console2.sol";
+import { stdJson } from "forge-std/StdJson.sol";
+import { Test } from "forge-std/Test.sol";
+
+import { TransparentUpgradeableProxy } from "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+
 import { AddressManager } from "../contracts/common/AddressManager.sol";
 import { AddressResolver } from "../contracts/common/AddressResolver.sol";
+import { EssentialContract } from "../contracts/common/EssentialContract.sol";
 import { Bridge } from "../contracts/bridge/Bridge.sol";
-import { BridgeErrors } from "../contracts/bridge/BridgeErrors.sol";
 import { ERC1155Vault } from "../contracts/tokenvault/ERC1155Vault.sol";
 import { ERC20Vault } from "../contracts/tokenvault/ERC20Vault.sol";
 import { ERC721Vault } from "../contracts/tokenvault/ERC721Vault.sol";
-import { EtherVault } from "../contracts/bridge/EtherVault.sol";
 import { IBridge } from "../contracts/bridge/IBridge.sol";
-import { LibBridgeStatus } from "../contracts/bridge/libs/LibBridgeStatus.sol";
 import { RegularERC20 } from "../contracts/test/erc20/RegularERC20.sol";
 import { SignalService } from "../contracts/signal/SignalService.sol";
 import { TaikoL2 } from "../contracts/L2/TaikoL2.sol";
-import { Test } from "forge-std/Test.sol";
-import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import { console2 } from "forge-std/console2.sol";
-import { stdJson } from "forge-std/StdJson.sol";
+
 
 contract TestGenerateGenesis is Test, AddressResolver {
     using stdJson for string;
@@ -40,7 +41,6 @@ contract TestGenerateGenesis is Test, AddressResolver {
         checkDeployedCode("ProxiedERC20Vault");
         checkDeployedCode("ProxiedERC721Vault");
         checkDeployedCode("ProxiedERC1155Vault");
-        checkDeployedCode("ProxiedEtherVault");
         checkDeployedCode("ProxiedBridge");
         checkDeployedCode("RegularERC20");
         checkDeployedCode("ProxiedAddressManager");
@@ -51,7 +51,6 @@ contract TestGenerateGenesis is Test, AddressResolver {
         checkProxyImplementation("ERC20VaultProxy", "ProxiedERC20Vault");
         checkProxyImplementation("ERC721VaultProxy", "ProxiedERC721Vault");
         checkProxyImplementation("ERC1155VaultProxy", "ProxiedERC1155Vault");
-        checkProxyImplementation("EtherVaultProxy", "ProxiedEtherVault");
         checkProxyImplementation("BridgeProxy", "ProxiedBridge");
         checkProxyImplementation("AddressManagerProxy", "ProxiedAddressManager");
         checkProxyImplementation("SignalServiceProxy", "ProxiedSignalService");
@@ -61,7 +60,6 @@ contract TestGenerateGenesis is Test, AddressResolver {
         checkDeployedCode("ERC20VaultProxy");
         checkDeployedCode("ERC721VaultProxy");
         checkDeployedCode("ERC1155VaultProxy");
-        checkDeployedCode("EtherVaultProxy");
         checkDeployedCode("BridgeProxy");
         checkDeployedCode("AddressManagerProxy");
         checkDeployedCode("SignalServiceProxy");
@@ -77,7 +75,6 @@ contract TestGenerateGenesis is Test, AddressResolver {
         checkSavedAddress(addressManager, "ERC20VaultProxy", "erc20_vault");
         checkSavedAddress(addressManager, "ERC721VaultProxy", "erc721_vault");
         checkSavedAddress(addressManager, "ERC1155VaultProxy", "erc1155_vault");
-        checkSavedAddress(addressManager, "EtherVaultProxy", "ether_vault");
         checkSavedAddress(addressManager, "TaikoL2Proxy", "taiko");
         checkSavedAddress(
             addressManager, "SignalServiceProxy", "signal_service"
@@ -101,15 +98,18 @@ contract TestGenerateGenesis is Test, AddressResolver {
         TaikoL2 taikoL2 = TaikoL2(getPredeployedContractAddress("TaikoL2Proxy"));
 
         vm.startPrank(taikoL2.GOLDEN_TOUCH_ADDRESS());
-        for (uint32 i = 0; i < 300; i++) {
+        for (uint32 i = 0; i < 300; ++i) {
             vm.roll(block.number + 1);
-            vm.warp(taikoL2.parentTimestamp() + 12);
+            vm.warp(block.number + 12);
             vm.fee(taikoL2.getBasefee(12, i));
 
             uint256 gasLeftBefore = gasleft();
 
             taikoL2.anchor(
-                bytes32(block.prevrandao), bytes32(block.prevrandao), i, i
+                keccak256(abi.encodePacked(block.timestamp, i)),
+                keccak256(abi.encodePacked(block.timestamp, i)),
+                i + 1,
+                i + 1
             );
 
             if (i == 299) {
@@ -142,7 +142,7 @@ contract TestGenerateGenesis is Test, AddressResolver {
 
         assertEq(owner, bridge.owner());
 
-        vm.expectRevert(BridgeErrors.B_FORBIDDEN.selector);
+        vm.expectRevert(Bridge.B_PERMISSION_DENIED.selector);
         bridge.processMessage(
             IBridge.Message({
                 id: 0,
@@ -161,6 +161,35 @@ contract TestGenerateGenesis is Test, AddressResolver {
             ""
         );
 
+        assertEq(bridge.paused(), false);
+
+        vm.startPrank(owner);
+        bridge.pause();
+        assertEq(bridge.paused(), true);
+
+        vm.expectRevert(EssentialContract.INVALID_PAUSE_STATUS.selector);
+        bridge.processMessage(
+            IBridge.Message({
+                id: 0,
+                from: address(0),
+                srcChainId: 1,
+                destChainId: 167,
+                user: address(0),
+                to: address(0),
+                refundTo: address(0),
+                value: 0,
+                fee: 0,
+                gasLimit: 0,
+                data: "",
+                memo: ""
+            }),
+            ""
+        );
+
+        bridge.unpause();
+        assertEq(bridge.paused(), false);
+        vm.stopPrank();
+
         vm.startPrank(admin);
 
         TransparentUpgradeableProxy proxy = TransparentUpgradeableProxy(
@@ -175,34 +204,6 @@ contract TestGenerateGenesis is Test, AddressResolver {
         vm.stopPrank();
     }
 
-    function testEtherVault() public {
-        address payable etherVaultAddress =
-            payable(getPredeployedContractAddress("EtherVaultProxy"));
-        EtherVault etherVault = EtherVault(etherVaultAddress);
-
-        assertEq(owner, etherVault.owner());
-
-        assertEq(
-            etherVault.isAuthorized(
-                getPredeployedContractAddress("BridgeProxy")
-            ),
-            true
-        );
-        assertEq(etherVault.isAuthorized(etherVault.owner()), false);
-
-        vm.startPrank(admin);
-
-        TransparentUpgradeableProxy proxy = TransparentUpgradeableProxy(
-            payable(getPredeployedContractAddress("EtherVaultProxy"))
-        );
-
-        EtherVault newEtherVault = new EtherVault();
-
-        proxy.upgradeTo(address(newEtherVault));
-
-        assertEq(proxy.implementation(), address(newEtherVault));
-        vm.stopPrank();
-    }
 
     function testERC20Vault() public {
         address erc20VaultAddress =
@@ -371,7 +372,7 @@ contract TestGenerateGenesis is Test, AddressResolver {
     {
         assertEq(
             getPredeployedContractAddress(contractName),
-            addressManager.getAddress(block.chainid, name)
+            addressManager.getAddress(uint64(block.chainid), name)
         );
     }
 }

@@ -1,37 +1,92 @@
 [
   {
     "inputs": [],
-    "name": "L1_ALREADY_PROVEN",
+    "name": "L1_ALREADY_CONTESTED",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_ALREADY_PROVEN",
+    "name": "L1_ALREADY_CONTESTED",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_BLOCK_ID_MISMATCH",
+    "name": "L1_ALREADY_PROVED",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_BLOCK_ID_MISMATCH",
+    "name": "L1_ALREADY_PROVED",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_BLOCK_ID_MISMATCH",
+    "name": "L1_ASSIGNED_PROVER_NOT_ALLOWED",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_EVIDENCE_MISMATCH",
+    "name": "L1_ASSIGNED_PROVER_NOT_ALLOWED",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_EVIDENCE_MISMATCH",
+    "name": "L1_ASSIGNMENT_EXPIRED",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_EXPIRED",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_INSUFFICIENT_FEE",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_INSUFFICIENT_FEE",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_INVALID_PARAMS",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_INVALID_PARAMS",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_INVALID_SIG",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_ASSIGNMENT_INVALID_SIG",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_BLOCK_MISMATCH",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_BLOCK_MISMATCH",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_BLOCK_MISMATCH",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_BLOCK_MISMATCH",
     "type": "error"
   },
   {
@@ -41,17 +96,12 @@
   },
   {
     "inputs": [],
-    "name": "L1_INSUFFICIENT_TOKEN",
+    "name": "L1_INVALID_ADDRESS",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_INVALID_ASSIGNMENT",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "L1_INVALID_ASSIGNMENT",
+    "name": "L1_INVALID_ADDRESS",
     "type": "error"
   },
   {
@@ -102,21 +152,6 @@
   {
     "inputs": [],
     "name": "L1_INVALID_METADATA",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "L1_INVALID_METADATA",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "L1_INVALID_ORACLE_PROVER",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "L1_INVALID_ORACLE_PROVER",
     "type": "error"
   },
   {
@@ -136,16 +171,6 @@
   },
   {
     "inputs": [],
-    "name": "L1_INVALID_PROPOSER",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "L1_INVALID_PROVER",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "L1_INVALID_PROVER",
     "type": "error"
   },
@@ -156,27 +181,32 @@
   },
   {
     "inputs": [],
-    "name": "L1_INVALID_PROVER_SIG",
+    "name": "L1_INVALID_TIER",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_NOT_PROVEABLE",
+    "name": "L1_INVALID_TIER",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_NOT_PROVEABLE",
+    "name": "L1_NOT_ASSIGNED_PROVER",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_SAME_PROOF",
+    "name": "L1_NOT_ASSIGNED_PROVER",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_SAME_PROOF",
+    "name": "L1_TIER_NOT_FOUND",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_TIER_NOT_FOUND",
     "type": "error"
   },
   {
@@ -191,7 +221,12 @@
   },
   {
     "inputs": [],
-    "name": "L1_TRANSITION_NOT_FOUND",
+    "name": "L1_TRANSITION_ID_ZERO",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_TRANSITION_ID_ZERO",
     "type": "error"
   },
   {
@@ -201,42 +236,47 @@
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST",
+    "name": "L1_TRANSITION_NOT_FOUND",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST",
+    "name": "L1_TXLIST_INVALID_RANGE",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST_HASH",
+    "name": "L1_TXLIST_MISMATCH",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST_HASH",
+    "name": "L1_TXLIST_MISMATCH",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST_NOT_EXIST",
+    "name": "L1_TXLIST_NOT_FOUND",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST_NOT_EXIST",
+    "name": "L1_TXLIST_TOO_LARGE",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST_RANGE",
+    "name": "L1_TXLIST_TOO_LARGE",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "L1_TX_LIST_RANGE",
+    "name": "L1_UNAUTHORIZED",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_UNAUTHORIZED",
     "type": "error"
   },
   {
@@ -247,6 +287,16 @@
   {
     "inputs": [],
     "name": "L1_UNEXPECTED_TRANSITION_ID",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_UNEXPECTED_TRANSITION_TIER",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "L1_UNEXPECTED_TRANSITION_TIER",
     "type": "error"
   },
   {
@@ -300,8 +350,20 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "prover",
+        "name": "assignedProver",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint96",
+        "name": "livenessBond",
+        "type": "uint96"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "proverFee",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -310,7 +372,33 @@
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "minTier",
+        "type": "uint16"
+      },
+      {
         "components": [
+          {
+            "internalType": "bytes32",
+            "name": "l1Hash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "difficulty",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txListHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "extraData",
+            "type": "bytes32"
+          },
           {
             "internalType": "uint64",
             "name": "id",
@@ -327,38 +415,13 @@
             "type": "uint64"
           },
           {
-            "internalType": "bytes32",
-            "name": "l1Hash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "mixHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "txListHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint24",
-            "name": "txListByteStart",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "txListByteEnd",
-            "type": "uint24"
-          },
-          {
             "internalType": "uint32",
             "name": "gasLimit",
             "type": "uint32"
           },
           {
             "internalType": "address",
-            "name": "proposer",
+            "name": "coinbase",
             "type": "address"
           },
           {
@@ -405,8 +468,20 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "prover",
+        "name": "assignedProver",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint96",
+        "name": "livenessBond",
+        "type": "uint96"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "proverFee",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -415,7 +490,33 @@
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "minTier",
+        "type": "uint16"
+      },
+      {
         "components": [
+          {
+            "internalType": "bytes32",
+            "name": "l1Hash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "difficulty",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txListHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "extraData",
+            "type": "bytes32"
+          },
           {
             "internalType": "uint64",
             "name": "id",
@@ -432,38 +533,13 @@
             "type": "uint64"
           },
           {
-            "internalType": "bytes32",
-            "name": "l1Hash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "mixHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "txListHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint24",
-            "name": "txListByteStart",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "txListByteEnd",
-            "type": "uint24"
-          },
-          {
             "internalType": "uint32",
             "name": "gasLimit",
             "type": "uint32"
           },
           {
             "internalType": "address",
-            "name": "proposer",
+            "name": "coinbase",
             "type": "address"
           },
           {
@@ -508,10 +584,16 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "parentHash",
-        "type": "bytes32"
+        "indexed": true,
+        "internalType": "address",
+        "name": "assignedProver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "prover",
+        "type": "address"
       },
       {
         "indexed": false,
@@ -523,74 +605,6 @@
         "indexed": false,
         "internalType": "bytes32",
         "name": "signalRoot",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "prover",
-        "type": "address"
-      }
-    ],
-    "name": "BlockProven",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "blockId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "parentHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "blockHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "signalRoot",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "prover",
-        "type": "address"
-      }
-    ],
-    "name": "BlockProven",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "blockId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "prover",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "blockHash",
         "type": "bytes32"
       }
     ],
@@ -609,6 +623,12 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "assignedProver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "prover",
         "type": "address"
       },
@@ -617,159 +637,15 @@
         "internalType": "bytes32",
         "name": "blockHash",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "signalRoot",
+        "type": "bytes32"
       }
     ],
     "name": "BlockVerified",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "blockId",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bond",
-        "type": "uint256"
-      }
-    ],
-    "name": "BondReceived",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "blockId",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bond",
-        "type": "uint256"
-      }
-    ],
-    "name": "BondReceived",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "blockId",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bond",
-        "type": "uint256"
-      }
-    ],
-    "name": "BondReturned",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "blockId",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bond",
-        "type": "uint256"
-      }
-    ],
-    "name": "BondReturned",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "blockId",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bond",
-        "type": "uint256"
-      }
-    ],
-    "name": "BondRewarded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "blockId",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bond",
-        "type": "uint256"
-      }
-    ],
-    "name": "BondRewarded",
     "type": "event"
   },
   {
@@ -915,6 +791,368 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "minted",
+        "type": "bool"
+      }
+    ],
+    "name": "TokenCredited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "minted",
+        "type": "bool"
+      }
+    ],
+    "name": "TokenCredited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "fromLocalBalance",
+        "type": "bool"
+      }
+    ],
+    "name": "TokenDebited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "fromLocalBalance",
+        "type": "bool"
+      }
+    ],
+    "name": "TokenDebited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenDeposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenDeposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenWithdrawnByOwner",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenWithdrawnByOwner",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "blockId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "blockHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "signalRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contester",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint96",
+        "name": "contestBond",
+        "type": "uint96"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "tier",
+        "type": "uint16"
+      }
+    ],
+    "name": "TransitionContested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "blockId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "blockHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "signalRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contester",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint96",
+        "name": "contestBond",
+        "type": "uint96"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "tier",
+        "type": "uint16"
+      }
+    ],
+    "name": "TransitionContested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "blockId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "blockHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "signalRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "prover",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint96",
+        "name": "validityBond",
+        "type": "uint96"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "tier",
+        "type": "uint16"
+      }
+    ],
+    "name": "TransitionProved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "blockId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "blockHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "signalRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "prover",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint96",
+        "name": "validityBond",
+        "type": "uint96"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "tier",
+        "type": "uint16"
+      }
+    ],
+    "name": "TransitionProved",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "addressManager",
     "outputs": [
@@ -991,12 +1229,12 @@
           },
           {
             "internalType": "address",
-            "name": "prover",
+            "name": "assignedProver",
             "type": "address"
           },
           {
             "internalType": "uint96",
-            "name": "proofBond",
+            "name": "livenessBond",
             "type": "uint96"
           },
           {
@@ -1018,6 +1256,11 @@
             "internalType": "uint32",
             "name": "verifiedTransitionId",
             "type": "uint32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "minTier",
+            "type": "uint16"
           },
           {
             "internalType": "bytes32[7]",
@@ -1061,7 +1304,7 @@
           },
           {
             "internalType": "uint64",
-            "name": "blockMaxVerificationsPerTx",
+            "name": "maxBlocksToVerifyPerProposal",
             "type": "uint64"
           },
           {
@@ -1081,11 +1324,6 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockTxListExpiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
             "name": "proposerRewardPerSecond",
             "type": "uint256"
           },
@@ -1095,29 +1333,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "proofRegularCooldown",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "proofOracleCooldown",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint16",
-            "name": "proofWindow",
-            "type": "uint16"
-          },
-          {
             "internalType": "uint96",
-            "name": "proofBond",
+            "name": "livenessBond",
             "type": "uint96"
-          },
-          {
-            "internalType": "bool",
-            "name": "skipProverAssignmentVerificaiton",
-            "type": "bool"
           },
           {
             "internalType": "uint256",
@@ -1202,6 +1420,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rand",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMinTier",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getStateVariables",
     "outputs": [
@@ -1219,22 +1456,22 @@
           },
           {
             "internalType": "uint64",
-            "name": "numBlocks",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
-            "name": "lastVerifiedBlockId",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
             "name": "nextEthDepositToProcess",
             "type": "uint64"
           },
           {
             "internalType": "uint64",
             "name": "numEthDeposits",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "numBlocks",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "lastVerifiedBlockId",
             "type": "uint64"
           }
         ],
@@ -1250,7 +1487,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "addr",
+        "name": "user",
         "type": "address"
       }
     ],
@@ -1260,6 +1497,65 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "tierId",
+        "type": "uint16"
+      }
+    ],
+    "name": "getTier",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "verifierName",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint96",
+            "name": "validityBond",
+            "type": "uint96"
+          },
+          {
+            "internalType": "uint96",
+            "name": "contestBond",
+            "type": "uint96"
+          },
+          {
+            "internalType": "uint24",
+            "name": "cooldownWindow",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint16",
+            "name": "provingWindow",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct ITierProvider.Tier",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTierIds",
+    "outputs": [
+      {
+        "internalType": "uint16[]",
+        "name": "",
+        "type": "uint16[]"
       }
     ],
     "stateMutability": "view",
@@ -1303,14 +1599,34 @@
             "type": "address"
           },
           {
+            "internalType": "uint96",
+            "name": "validityBond",
+            "type": "uint96"
+          },
+          {
+            "internalType": "address",
+            "name": "contester",
+            "type": "address"
+          },
+          {
+            "internalType": "uint96",
+            "name": "contestBond",
+            "type": "uint96"
+          },
+          {
             "internalType": "uint64",
-            "name": "provenAt",
+            "name": "timestamp",
             "type": "uint64"
           },
           {
-            "internalType": "bytes32[6]",
+            "internalType": "uint16",
+            "name": "tier",
+            "type": "uint16"
+          },
+          {
+            "internalType": "bytes32[4]",
             "name": "__reserved",
-            "type": "bytes32[6]"
+            "type": "bytes32[4]"
           }
         ],
         "internalType": "struct TaikoData.Transition",
@@ -1319,25 +1635,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "id",
-        "type": "uint16"
-      }
-    ],
-    "name": "getVerifierName",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1374,9 +1671,32 @@
   {
     "inputs": [
       {
-        "internalType": "bytes",
-        "name": "input",
-        "type": "bytes"
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ownerWithdrawTaikoToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "txListHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "extraData",
+        "type": "bytes32"
       },
       {
         "internalType": "bytes",
@@ -1394,6 +1714,26 @@
       {
         "components": [
           {
+            "internalType": "bytes32",
+            "name": "l1Hash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "difficulty",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txListHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "extraData",
+            "type": "bytes32"
+          },
+          {
             "internalType": "uint64",
             "name": "id",
             "type": "uint64"
@@ -1409,38 +1749,13 @@
             "type": "uint64"
           },
           {
-            "internalType": "bytes32",
-            "name": "l1Hash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "mixHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "txListHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint24",
-            "name": "txListByteStart",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "txListByteEnd",
-            "type": "uint24"
-          },
-          {
             "internalType": "uint32",
             "name": "gasLimit",
             "type": "uint32"
           },
           {
             "internalType": "address",
-            "name": "proposer",
+            "name": "coinbase",
             "type": "address"
           },
           {

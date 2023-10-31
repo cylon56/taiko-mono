@@ -9,10 +9,17 @@ pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
 import "forge-std/console2.sol";
 import
-    "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+    "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import "../contracts/L1/TaikoToken.sol";
 import "../contracts/L1/TaikoL1.sol";
-import "../contracts/L1/ProofVerifier.sol";
+import "../contracts/L1/provers/GuardianProver.sol";
+import "../contracts/L1/verifiers/PseZkVerifier.sol";
+import "../contracts/L1/verifiers/SgxVerifier.sol";
+import "../contracts/L1/verifiers/SgxAndZkVerifier.sol";
+import "../contracts/L1/verifiers/GuardianVerifier.sol";
+import "../contracts/L1/tiers/ITierProvider.sol";
+import "../contracts/L1/tiers/TaikoA6TierProvider.sol";
 import "../contracts/bridge/Bridge.sol";
 import "../contracts/tokenvault/ERC20Vault.sol";
 import "../contracts/tokenvault/ERC1155Vault.sol";
@@ -26,6 +33,9 @@ import "../contracts/test/erc20/MayFailFreeMintERC20.sol";
 /// @notice This script deploys the core Taiko protocol smart contract on L1,
 /// initializing the rollup.
 contract DeployOnL1 is Script {
+    // NOTE: this value must match the constant defined in GuardianProver.sol
+    uint256 public constant NUM_GUARDIANS = 5;
+
     bytes32 public genesisHash = vm.envBytes32("L2_GENESIS_HASH");
 
     uint256 public deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -36,18 +46,21 @@ contract DeployOnL1 is Script {
 
     address public owner = vm.envAddress("OWNER");
 
-    address public oracleProver = vm.envAddress("ORACLE_PROVER");
+    address[] public guardianProvers = vm.envAddress("GUARDIAN_PROVERS", ",");
+
+    address public proposer = vm.envAddress("PROPOSER");
 
     address public sharedSignalService = vm.envAddress("SHARED_SIGNAL_SERVICE");
 
-    address[] public taikoTokenPremintRecipients =
-        vm.envAddress("TAIKO_TOKEN_PREMINT_RECIPIENTS", ",");
+    uint256 public tierProvider = vm.envUint("TIER_PROVIDER");
 
-    uint256[] public taikoTokenPremintAmounts =
-        vm.envUint("TAIKO_TOKEN_PREMINT_AMOUNTS", ",");
+    address public taikoTokenPremintRecipient =
+        vm.envAddress("TAIKO_TOKEN_PREMINT_RECIPIENT");
 
     TaikoL1 taikoL1;
     address public addressManagerProxy;
+
+    enum TierProviders { TAIKO_ALPHA6 }
 
     error FAILED_TO_DEPLOY_PLONK_VERIFIER(string contractPath);
 
@@ -56,16 +69,9 @@ contract DeployOnL1 is Script {
         require(taikoL2Address != address(0), "taikoL2Address is zero");
         require(l2SignalService != address(0), "l2SignalService is zero");
         require(
-            taikoTokenPremintRecipients.length != 0,
-            "taikoTokenPremintRecipients length is zero"
+            guardianProvers.length == NUM_GUARDIANS,
+            "invalid guardian provers number"
         );
-
-        require(
-            taikoTokenPremintRecipients.length
-                == taikoTokenPremintAmounts.length,
-            "taikoTokenPremintRecipients and taikoTokenPremintAmounts must be same length"
-        );
-
         vm.startBroadcast(deployerPrivateKey);
 
         // AddressManager
@@ -78,12 +84,14 @@ contract DeployOnL1 is Script {
 
         // TaikoL1
         taikoL1 = new ProxiedTaikoL1();
-        uint256 l2ChainId = taikoL1.getConfig().chainId;
+        uint64 l2ChainId = taikoL1.getConfig().chainId;
         require(l2ChainId != block.chainid, "same chainid");
 
         setAddress(l2ChainId, "taiko", taikoL2Address);
         setAddress(l2ChainId, "signal_service", l2SignalService);
-        setAddress("oracle_prover", oracleProver);
+        if (proposer != address(0)) {
+            setAddress("proposer", proposer);
+        }
 
         // TaikoToken
         TaikoToken taikoToken = new ProxiedTaikoToken();
@@ -95,10 +103,9 @@ contract DeployOnL1 is Script {
                 taikoToken.init.selector,
                 abi.encode(
                     addressManagerProxy,
-                    "Taiko Token Eldfell",
-                    "TTKOe",
-                    taikoTokenPremintRecipients,
-                    taikoTokenPremintAmounts
+                    "Taiko Token Katla",
+                    "TTKOk",
+                    taikoTokenPremintRecipient
                 )
             )
         );
@@ -107,17 +114,12 @@ contract DeployOnL1 is Script {
         address horseToken = address(new FreeMintERC20("Horse Token", "HORSE"));
         console2.log("HorseToken", horseToken);
 
-        uint64 feePerGas = 10;
-        uint64 proofWindow = 60 minutes;
-
         address taikoL1Proxy = deployProxy(
             "taiko",
             address(taikoL1),
             bytes.concat(
                 taikoL1.init.selector,
-                abi.encode(
-                    addressManagerProxy, genesisHash, feePerGas, proofWindow
-                )
+                abi.encode(addressManagerProxy, genesisHash)
             )
         );
         setAddress("taiko", taikoL1Proxy);
@@ -160,13 +162,65 @@ contract DeployOnL1 is Script {
             )
         );
 
-        // ProofVerifier
-        ProofVerifier proofVerifier = new ProxiedProofVerifier();
-        deployProxy(
-            "proof_verifier",
-            address(proofVerifier),
+        // Guardian prover
+        ProxiedGuardianProver guardianProver = new ProxiedGuardianProver();
+        address guardianProverProxy = deployProxy(
+            "guardian_prover",
+            address(guardianProver),
             bytes.concat(
-                proofVerifier.init.selector, abi.encode(addressManagerProxy)
+                guardianProver.init.selector, abi.encode(addressManagerProxy)
+            )
+        );
+        address[NUM_GUARDIANS] memory guardians;
+        for (uint256 i = 0; i < NUM_GUARDIANS; ++i) {
+            guardians[i] = guardianProvers[i];
+        }
+        ProxiedGuardianProver(guardianProverProxy).setGuardians(guardians);
+
+        // Config provider
+        deployProxy(
+            "tier_provider",
+            deployTierProvider(uint256(TierProviders.TAIKO_ALPHA6)),
+            ""
+        );
+
+        // GuardianVerifier
+        GuardianVerifier guardianVerifier = new ProxiedGuardianVerifier();
+        deployProxy(
+            "tier_guardian",
+            address(guardianVerifier),
+            bytes.concat(
+                guardianVerifier.init.selector, abi.encode(addressManagerProxy)
+            )
+        );
+
+        // SgxVerifier
+        SgxVerifier sgxVerifier = new ProxiedSgxVerifier();
+        deployProxy(
+            "tier_sgx",
+            address(sgxVerifier),
+            bytes.concat(
+                sgxVerifier.init.selector, abi.encode(addressManagerProxy)
+            )
+        );
+
+        // SgxAndZkVerifier
+        SgxAndZkVerifier sgxAndZkVerifier = new ProxiedSgxAndZkVerifier();
+        deployProxy(
+            "tier_sgx_and_pse_zkevm",
+            address(sgxAndZkVerifier),
+            bytes.concat(
+                sgxVerifier.init.selector, abi.encode(addressManagerProxy)
+            )
+        );
+
+        // PseZkVerifier
+        PseZkVerifier pseZkVerifier = new ProxiedPseZkVerifier();
+        deployProxy(
+            "tier_pse_zkevm",
+            address(pseZkVerifier),
+            bytes.concat(
+                pseZkVerifier.init.selector, abi.encode(addressManagerProxy)
             )
         );
 
@@ -188,18 +242,18 @@ contract DeployOnL1 is Script {
         }
 
         // PlonkVerifier
-        deployPlonkVerifiers();
+        deployPlonkVerifiers(pseZkVerifier);
 
         vm.stopBroadcast();
     }
 
-    function deployPlonkVerifiers() private {
+    function deployPlonkVerifiers(PseZkVerifier pseZkVerifier) private {
         address[] memory plonkVerifiers = new address[](1);
         plonkVerifiers[0] =
-            deployYulContract("contracts/libs/yul/PlonkVerifier.yulp");
+            deployYulContract("contracts/L1/verifiers/PlonkVerifier.yulp");
 
         for (uint16 i = 0; i < plonkVerifiers.length; ++i) {
-            setAddress(taikoL1.getVerifierName(i), plonkVerifiers[i]);
+            setAddress(pseZkVerifier.getVerifierName(i), plonkVerifiers[i]);
         }
     }
 
@@ -233,6 +287,17 @@ contract DeployOnL1 is Script {
         return deployedAddress;
     }
 
+    function deployTierProvider(uint256 tier)
+        private
+        returns (address providerAddress)
+    {
+        if (tier == uint256(TierProviders.TAIKO_ALPHA6)) {
+            return address(new TaikoA6TierProvider());
+        }
+
+        revert("invalid provider");
+    }
+
     function deployProxy(
         string memory name,
         address implementation,
@@ -249,7 +314,7 @@ contract DeployOnL1 is Script {
         console2.log(name, "(proxy) ->", proxy);
 
         if (addressManagerProxy != address(0)) {
-            setAddress(block.chainid, bytes32(bytes(name)), proxy);
+            setAddress(bytes32(bytes(name)), proxy);
         }
 
         vm.writeJson(
@@ -259,10 +324,10 @@ contract DeployOnL1 is Script {
     }
 
     function setAddress(bytes32 name, address addr) private {
-        setAddress(block.chainid, name, addr);
+        setAddress(uint64(block.chainid), name, addr);
     }
 
-    function setAddress(uint256 chainId, bytes32 name, address addr) private {
+    function setAddress(uint64 chainId, bytes32 name, address addr) private {
         console2.log(chainId, uint256(name), "--->", addr);
         if (addr != address(0)) {
             AddressManager(addressManagerProxy).setAddress(chainId, name, addr);
