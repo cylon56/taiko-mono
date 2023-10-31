@@ -117,6 +117,7 @@ contract SgxVerifier is EssentialContract, IVerifier {
         address newInstance =
             address(bytes20(LibBytesUtils.slice(proof.data, 2, 20)));
         bytes memory signature = LibBytesUtils.slice(proof.data, 22);
+
         address oldInstance = ECDSAUpgradeable.recover(
             getSignedHash(tran, newInstance, ctx.prover, ctx.metaHash),
             signature
