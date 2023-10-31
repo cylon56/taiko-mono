@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2](https://github.com/taikoxyz/taiko-mono/compare/bridge-ui-v0.10.1...bridge-ui-v0.10.2) (2023-10-31)
+
+
+### Bug Fixes
+
+* fix typos in tests and comments ([#15028](https://github.com/taikoxyz/taiko-mono/issues/15028)) ([54bf597](https://github.com/taikoxyz/taiko-mono/commit/54bf597c89a7f22161eeeffd13c20fe0acb4e2d7))
+
 ## [0.10.1](https://github.com/taikoxyz/taiko-mono/compare/bridge-ui-v0.10.0...bridge-ui-v0.10.1) (2023-09-25)
 
 

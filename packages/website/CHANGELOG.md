@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.19.0](https://github.com/taikoxyz/taiko-mono/compare/website-v0.18.0...website-v0.19.0) (2023-10-31)
+
+
+### Features
+
+* **website:** add apus network to ecosystem ([#15082](https://github.com/taikoxyz/taiko-mono/issues/15082)) ([799ed71](https://github.com/taikoxyz/taiko-mono/commit/799ed715098e10fcf0f1405d37961c2dd75918c2))
+* **website:** add rhino.fi, Hotpot and DotTaiko to ecosystem ([#15024](https://github.com/taikoxyz/taiko-mono/issues/15024)) ([73cabf3](https://github.com/taikoxyz/taiko-mono/commit/73cabf3db09a63ae32be4e0fe0a62eb9e16f65b5))
+* **website:** update `prover-market-page.mdx` ([#15063](https://github.com/taikoxyz/taiko-mono/issues/15063)) ([3dbbafb](https://github.com/taikoxyz/taiko-mono/commit/3dbbafb2ab93f227297aa7260e5abe37b9f84442))
+
 ## [0.18.0](https://github.com/taikoxyz/taiko-mono/compare/website-v0.17.0...website-v0.18.0) (2023-10-18)
 
 
