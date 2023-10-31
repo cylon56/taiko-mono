@@ -6,16 +6,15 @@
 
 pragma solidity ^0.8.20;
 
-import { EssentialContract } from "../common/EssentialContract.sol";
-import { IRecallableSender } from "../bridge/IBridge.sol";
+import { BaseVault } from "./BaseVault.sol";
 
 /// @title BaseNFTVault
 /// @notice Abstract contract for bridging NFTs across different chains.
-abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
+abstract contract BaseNFTVault is BaseVault {
     // Struct representing the canonical NFT on another chain.
     struct CanonicalNFT {
         // Chain ID of the NFT.
-        uint256 chainId;
+        uint64 chainId;
         // Address of the NFT contract.
         address addr;
         // Symbol of the NFT.
@@ -27,7 +26,7 @@ abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
     // Struct representing the details of a bridged token transfer operation.
     struct BridgeTransferOp {
         // Destination chain ID.
-        uint256 destChainId;
+        uint64 destChainId;
         // Recipient address.
         address to;
         // Address of the token.
@@ -49,6 +48,7 @@ abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
     // Constants for interface IDs.
     bytes4 public constant ERC1155_INTERFACE_ID = 0xd9b67a26;
     bytes4 public constant ERC721_INTERFACE_ID = 0x80ac58cd;
+    uint256 public constant MAX_TOKEN_PER_TXN = 10;
 
     // Mapping to track bridged tokens.
     mapping(address => bool) public isBridgedToken;
@@ -62,7 +62,7 @@ abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
     uint256[47] private __gap;
 
     event BridgedTokenDeployed(
-        uint256 indexed chainId,
+        uint64 indexed chainId,
         address indexed ctoken,
         address indexed btoken,
         string ctokenSymbol,
@@ -73,7 +73,7 @@ abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
         bytes32 indexed msgHash,
         address indexed from,
         address indexed to,
-        uint256 destChainId,
+        uint64 destChainId,
         address token,
         uint256[] tokenIds,
         uint256[] amounts
@@ -91,13 +91,12 @@ abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
         bytes32 indexed msgHash,
         address indexed from,
         address indexed to,
-        uint256 srcChainId,
+        uint64 srcChainId,
         address token,
         uint256[] tokenIds,
         uint256[] amounts
     );
 
-    error VAULT_INVALID_TO();
     error VAULT_INVALID_TOKEN();
     error VAULT_INVALID_AMOUNT();
     error VAULT_INVALID_USER();
@@ -109,9 +108,16 @@ abstract contract BaseNFTVault is EssentialContract, IRecallableSender {
     error VAULT_TOKEN_ARRAY_MISMATCH();
     error VAULT_MAX_TOKEN_PER_TXN_EXCEEDED();
 
-    /// @notice Initializes the contract with an address manager.
-    /// @param addressManager The address of the address manager.
-    function init(address addressManager) external initializer {
-        EssentialContract._init(addressManager);
+    modifier whenOperationValid(BridgeTransferOp calldata op) {
+        if (op.tokenIds.length != op.amounts.length) {
+            revert VAULT_TOKEN_ARRAY_MISMATCH();
+        }
+
+        if (op.tokenIds.length > MAX_TOKEN_PER_TXN) {
+            revert VAULT_MAX_TOKEN_PER_TXN_EXCEEDED();
+        }
+
+        if (op.token == address(0)) revert VAULT_INVALID_TOKEN();
+        _;
     }
 }

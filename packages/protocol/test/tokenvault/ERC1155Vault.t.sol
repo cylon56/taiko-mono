@@ -15,7 +15,6 @@ import { IBridge, Bridge } from "../../contracts/bridge/Bridge.sol";
 import { BaseNFTVault } from "../../contracts/tokenvault/BaseNFTVault.sol";
 import { ERC1155Vault } from "../../contracts/tokenvault/ERC1155Vault.sol";
 import { BridgedERC1155 } from "../../contracts/tokenvault/BridgedERC1155.sol";
-import { EtherVault } from "../../contracts/bridge/EtherVault.sol";
 import { SignalService } from "../../contracts/signal/SignalService.sol";
 import { ICrossChainSync } from "../../contracts/common/ICrossChainSync.sol";
 import { ERC1155 } from
@@ -40,7 +39,7 @@ contract PrankDestBridge {
     struct BridgeContext {
         bytes32 msgHash;
         address sender;
-        uint256 srcChainId;
+        uint64 srcChainId;
     }
 
     BridgeContext ctx;
@@ -74,7 +73,7 @@ contract PrankDestBridge {
         uint256[] memory amounts,
         bytes32 msgHash,
         address srcChainERC1155Vault,
-        uint256 srcChainId,
+        uint64 srcChainId,
         uint256 mockLibInvokeMsgValue
     )
         public
@@ -117,10 +116,9 @@ contract ERC1155VaultTest is TestBase {
     ERC1155Vault erc1155Vault;
     ERC1155Vault destChainErc1155Vault;
     TestTokenERC1155 ctoken1155;
-    EtherVault etherVault;
     SignalService signalService;
     DummyCrossChainSync crossChainSync;
-    uint256 destChainId = 19_389;
+    uint64 destChainId = 19_389;
 
     // Need +1 bc. and Amelia is the proxied bridge contracts owner
     // Change will cause onMessageRecall() test fails, because of
@@ -142,10 +140,7 @@ contract ERC1155VaultTest is TestBase {
         destChainBridge.init(address(addressManager));
 
         signalService = new SignalService();
-        signalService.init(address(addressManager));
-
-        etherVault = new EtherVault();
-        etherVault.init(address(addressManager));
+        signalService.init();
 
         erc1155Vault = new ERC1155Vault();
         erc1155Vault.init(address(addressManager));
@@ -157,26 +152,30 @@ contract ERC1155VaultTest is TestBase {
         vm.deal(address(destChainIdBridge), 100 ether);
 
         mockProofSignalService = new SkipProofCheckSignal();
-        mockProofSignalService.init(address(addressManager));
+        mockProofSignalService.init();
 
         crossChainSync = new DummyCrossChainSync();
 
         addressManager.setAddress(
-            block.chainid, "signal_service", address(mockProofSignalService)
+            uint64(block.chainid),
+            "signal_service",
+            address(mockProofSignalService)
         );
 
         addressManager.setAddress(
             destChainId, "signal_service", address(mockProofSignalService)
         );
 
-        addressManager.setAddress(block.chainid, "bridge", address(bridge));
+        addressManager.setAddress(
+            uint64(block.chainid), "bridge", address(bridge)
+        );
 
         addressManager.setAddress(
             destChainId, "bridge", address(destChainIdBridge)
         );
 
         addressManager.setAddress(
-            block.chainid, "erc1155_vault", address(erc1155Vault)
+            uint64(block.chainid), "erc1155_vault", address(erc1155Vault)
         );
 
         addressManager.setAddress(
@@ -193,19 +192,17 @@ contract ERC1155VaultTest is TestBase {
             destChainId, "erc20_vault", address(mockProofSignalService)
         );
         addressManager.setAddress(
-            block.chainid, "erc721_vault", address(mockProofSignalService)
+            uint64(block.chainid),
+            "erc721_vault",
+            address(mockProofSignalService)
         );
         addressManager.setAddress(
-            block.chainid, "erc20_vault", address(mockProofSignalService)
+            uint64(block.chainid),
+            "erc20_vault",
+            address(mockProofSignalService)
         );
-        addressManager.setAddress(
-            block.chainid, "ether_vault", address(etherVault)
-        );
-        // Authorize
-        etherVault.authorize(address(destChainIdBridge), true);
-        etherVault.authorize(address(bridge), true);
 
-        vm.deal(address(etherVault), 100 ether);
+        vm.deal(address(bridge), 100 ether);
 
         ctoken1155 = new TestTokenERC1155("http://example.host.com/");
         vm.stopPrank();
@@ -251,36 +248,6 @@ contract ERC1155VaultTest is TestBase {
 
         assertEq(ctoken1155.balanceOf(Alice, 1), 8);
         assertEq(ctoken1155.balanceOf(address(erc1155Vault), 1), 2);
-    }
-
-    function test_1155Vault_sendToken_with_invalid_to_address_1155() public {
-        vm.prank(Alice, Alice);
-        ctoken1155.setApprovalForAll(address(erc1155Vault), true);
-
-        assertEq(ctoken1155.balanceOf(Alice, 1), 10);
-        assertEq(ctoken1155.balanceOf(address(erc1155Vault), 1), 0);
-
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = 1;
-
-        uint256[] memory amounts = new uint256[](1);
-        amounts[0] = 2;
-
-        BaseNFTVault.BridgeTransferOp memory sendOpts = BaseNFTVault
-            .BridgeTransferOp(
-            destChainId,
-            address(0),
-            address(ctoken1155),
-            tokenIds,
-            amounts,
-            140_000,
-            140_000,
-            Alice,
-            ""
-        );
-        vm.prank(Alice, Alice);
-        vm.expectRevert(BaseNFTVault.VAULT_INVALID_TO.selector);
-        erc1155Vault.sendToken{ value: 140_000 }(sendOpts);
     }
 
     function test_1155Vault_sendToken_with_invalid_token_address_1155()
@@ -387,7 +354,7 @@ contract ERC1155VaultTest is TestBase {
             name: ""
         });
 
-        uint256 srcChainId = block.chainid;
+        uint64 srcChainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -452,7 +419,7 @@ contract ERC1155VaultTest is TestBase {
             name: ""
         });
 
-        uint256 srcChainId = block.chainid;
+        uint64 srcChainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -561,7 +528,7 @@ contract ERC1155VaultTest is TestBase {
             name: ""
         });
 
-        uint256 srcChainId = block.chainid;
+        uint64 srcChainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -613,28 +580,11 @@ contract ERC1155VaultTest is TestBase {
         );
 
         vm.prank(Alice, Alice);
-        erc1155Vault.sendToken{ value: 140_000 }(sendOpts);
+        IBridge.Message memory message =
+            erc1155Vault.sendToken{ value: 140_000 }(sendOpts);
 
         assertEq(ctoken1155.balanceOf(Alice, 1), 8);
         assertEq(ctoken1155.balanceOf(address(erc1155Vault), 1), 2);
-
-        // Reconstruct the message.
-        // Actually the only 2 things absolute necessary to fill are the owner
-        // and
-        // srcChain, because we mock the bridge functions, but good to have data
-        // here so that it could have been hashed back to the exact same bytes32
-        // value - if we were not mocking.
-        IBridge.Message memory message;
-        message.srcChainId = 31_337;
-        message.destChainId = destChainId;
-        message.user = Alice;
-        message.from = address(erc1155Vault);
-        message.to = address(destChainErc1155Vault);
-        message.data = getPreDeterminedDataBytes();
-        message.gasLimit = 140_000;
-        message.fee = 140_000;
-        message.refundTo = Alice;
-        message.memo = "";
 
         bridge.recallMessage(message, bytes(""));
 
@@ -689,7 +639,7 @@ contract ERC1155VaultTest is TestBase {
             name: ""
         });
 
-        uint256 srcChainId = block.chainid;
+        uint64 srcChainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -757,7 +707,7 @@ contract ERC1155VaultTest is TestBase {
             name: "TT"
         });
 
-        uint256 chainId = block.chainid;
+        uint64 chainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -815,7 +765,7 @@ contract ERC1155VaultTest is TestBase {
 
         vm.prank(Amelia, Amelia);
         addressManager.setAddress(
-            block.chainid, "bridge", address(destChainIdBridge)
+            uint64(block.chainid), "bridge", address(destChainIdBridge)
         );
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -877,7 +827,7 @@ contract ERC1155VaultTest is TestBase {
             name: "TT"
         });
 
-        uint256 chainId = block.chainid;
+        uint64 chainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(
@@ -967,7 +917,7 @@ contract ERC1155VaultTest is TestBase {
             name: ""
         });
 
-        uint256 srcChainId = block.chainid;
+        uint64 srcChainId = uint64(block.chainid);
         vm.chainId(destChainId);
 
         destChainIdBridge.sendReceiveERC1155ToERC1155Vault(

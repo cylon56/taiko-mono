@@ -10,10 +10,10 @@ import { Proxied } from "../common/Proxied.sol";
 import { ISignalService } from "../signal/ISignalService.sol";
 import { LibAddress } from "../libs/LibAddress.sol";
 
-import { EtherVault } from "./EtherVault.sol";
 import { IBridge, IRecallableSender } from "./IBridge.sol";
 
 /// @title Bridge
+/// @dev Labeled in AddressResolver as "bridge"
 /// @notice See the documentation for {IBridge}.
 /// @dev The code hash for the same address on L1 and L2 may be different.
 contract Bridge is EssentialContract, IBridge {
@@ -27,10 +27,7 @@ contract Bridge is EssentialContract, IBridge {
         FAILED
     }
 
-    bytes32 internal constant MESSAGE_HASH_PLACEHOLDER = bytes32(uint256(1));
-    uint256 internal constant CHAINID_PLACEHOLDER = type(uint256).max;
-    address internal constant SRC_CHAIN_SENDER_PLACEHOLDER =
-        address(uint160(uint256(1)));
+    uint256 internal constant PLACEHOLDER = type(uint256).max;
 
     uint128 public nextMessageId; // slot 1
     mapping(bytes32 msgHash => bool recalled) public isMessageRecalled;
@@ -41,7 +38,7 @@ contract Bridge is EssentialContract, IBridge {
     event SignalSent(address indexed sender, bytes32 msgHash);
     event MessageSent(bytes32 indexed msgHash, Message message);
     event MessageRecalled(bytes32 indexed msgHash);
-    event DestChainEnabled(uint256 indexed chainId, bool enabled);
+    event DestChainEnabled(uint64 indexed chainId, bool enabled);
     event MessageStatusChanged(bytes32 indexed msgHash, Status status);
 
     error B_INVALID_CHAINID();
@@ -57,19 +54,18 @@ contract Bridge is EssentialContract, IBridge {
     error B_RECALLED_ALREADY();
     error B_STATUS_MISMATCH();
 
-    modifier sameChain(uint256 chainId) {
+    modifier sameChain(uint64 chainId) {
         if (chainId != block.chainid) revert B_INVALID_CHAINID();
         _;
     }
 
-    /// @dev Vaults will transfer Ether to this Bridge before these Ether are
-    /// sent to users.
     receive() external payable { }
 
     /// @notice Initializes the contract.
     /// @param _addressManager The address of the {AddressManager} contract.
     function init(address _addressManager) external initializer {
         EssentialContract._init(_addressManager);
+        _ctx.msgHash == bytes32(PLACEHOLDER);
     }
 
     /// @notice Sends a message to the destination chain and takes custody
@@ -99,14 +95,12 @@ contract Bridge is EssentialContract, IBridge {
         uint256 expectedAmount = message.value + message.fee;
         if (expectedAmount != msg.value) revert B_INVALID_VALUE();
 
-        resolve("ether_vault", false).sendEther(expectedAmount);
-
         _message = message;
         // Configure message details and send signal to indicate message
         // sending.
         _message.id = nextMessageId++;
         _message.from = msg.sender;
-        _message.srcChainId = block.chainid;
+        _message.srcChainId = uint64(block.chainid);
 
         msgHash = keccak256(abi.encode(_message));
 
@@ -139,11 +133,6 @@ contract Bridge is EssentialContract, IBridge {
 
         isMessageRecalled[msgHash] = true;
 
-        // Release necessary Ether from EtherVault.
-        EtherVault(resolve("ether_vault", false)).releaseEther(
-            address(this), message.value
-        );
-
         // Execute the recall logic based on the contract's support for the
         // IRecallableSender interface
         bool support =
@@ -162,9 +151,9 @@ contract Bridge is EssentialContract, IBridge {
 
             // Reset the context after the message call
             _ctx = Context({
-                msgHash: MESSAGE_HASH_PLACEHOLDER,
-                from: SRC_CHAIN_SENDER_PLACEHOLDER,
-                srcChainId: CHAINID_PLACEHOLDER
+                msgHash: bytes32(PLACEHOLDER),
+                from: address(uint160(PLACEHOLDER)),
+                srcChainId: uint64(PLACEHOLDER)
             });
         } else {
             message.user.sendEther(message.value);
@@ -176,9 +165,9 @@ contract Bridge is EssentialContract, IBridge {
     /// @notice Processes a bridge message on the destination chain. This
     /// function is callable by any address, including the `message.user`.
     /// @dev The process begins by hashing the message and checking the message
-    /// status in the bridge  If the status is "NEW", custody of Ether is
-    /// taken from the EtherVault, and the message is invoked. The status is
-    /// updated accordingly, and processing fees are refunded as needed.
+    /// status in the bridge  If the status is "NEW", the message is invoked. The
+    /// status is updated accordingly, and processing fees are refunded as
+    /// needed.
     /// @param message The message to be processed.
     /// @param proof The merkle inclusion proof.
     function processMessage(
@@ -202,19 +191,11 @@ contract Bridge is EssentialContract, IBridge {
         bool received = _proveSignalReceived(msgHash, message.srcChainId, proof);
         if (!received) revert B_NOT_RECEIVED();
 
-        address payable ethVault = resolve("ether_vault", false);
-        EtherVault(ethVault).releaseEther(
-            address(this), message.value + message.fee
-        );
-
         Status status;
         uint256 refundAmount;
 
         // Process message differently based on the target address
-        if (
-            message.to == address(0) || message.to == address(this)
-                || message.to == ethVault || message.to == resolve("taiko", false)
-        ) {
+        if (message.to == address(0) || message.to == address(this)) {
             // Handle special addresses that don't require actual invocation but
             // mark message as DONE
             status = Status.DONE;
@@ -229,7 +210,6 @@ contract Bridge is EssentialContract, IBridge {
                 status = Status.DONE;
             } else {
                 status = Status.RETRIABLE;
-                ethVault.sendEther(message.value);
             }
         }
 
@@ -279,9 +259,6 @@ contract Bridge is EssentialContract, IBridge {
             revert B_NON_RETRIABLE();
         }
 
-        address payable ethVault = resolve("ether_vault", false);
-        EtherVault(ethVault).releaseEther(address(this), message.value);
-
         // Attempt to invoke the messageCall.
         if (_invokeMessageCall(message, msgHash, gasleft())) {
             // Update the message status to "DONE" on successful invocation.
@@ -289,9 +266,6 @@ contract Bridge is EssentialContract, IBridge {
         } else {
             // Update the message status to "FAILED"
             _updateMessageStatus(msgHash, Status.FAILED);
-            // Release Ether back to EtherVault (if on Taiko it is OK)
-            // otherwise funds stay at Bridge anyways.
-            ethVault.sendEther(message.value);
         }
     }
 
@@ -352,7 +326,7 @@ contract Bridge is EssentialContract, IBridge {
     /// @param chainId The destination chain ID.
     /// @return enabled True if the destination chain is enabled.
     /// @return destBridge The bridge of the destination chain.
-    function isDestChainEnabled(uint256 chainId)
+    function isDestChainEnabled(uint64 chainId)
         public
         view
         returns (bool enabled, address destBridge)
@@ -364,7 +338,7 @@ contract Bridge is EssentialContract, IBridge {
     /// @notice Gets the current context.
     /// @inheritdoc IBridge
     function context() public view returns (Context memory) {
-        if (_ctx.msgHash == 0 || _ctx.msgHash == MESSAGE_HASH_PLACEHOLDER) {
+        if (_ctx.msgHash == bytes32(PLACEHOLDER) || _ctx.msgHash == 0) {
             revert B_INVALID_CONTEXT();
         }
         return _ctx;
@@ -401,9 +375,9 @@ contract Bridge is EssentialContract, IBridge {
 
         // Reset the context after the message call
         _ctx = Context({
-            msgHash: MESSAGE_HASH_PLACEHOLDER,
-            from: SRC_CHAIN_SENDER_PLACEHOLDER,
-            srcChainId: CHAINID_PLACEHOLDER
+            msgHash: bytes32(PLACEHOLDER),
+            from: address(uint160(PLACEHOLDER)),
+            srcChainId: uint64(PLACEHOLDER)
         });
     }
 
@@ -432,7 +406,7 @@ contract Bridge is EssentialContract, IBridge {
     /// @return True if the message was received.
     function _proveSignalReceived(
         bytes32 signal,
-        uint256 srcChainId,
+        uint64 srcChainId,
         bytes calldata proof
     )
         private
