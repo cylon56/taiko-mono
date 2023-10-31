@@ -8,8 +8,7 @@ pragma solidity ^0.8.20;
 
 /// @title IBridge
 /// @notice The bridge used in conjunction with the {ISignalService}.
-/// @dev Ether is held by Bridges on L1 and by the EtherVault on L2,
-/// not by token vaults.
+/// @dev Ether is held by Bridges on L1 and L2s.
 interface IBridge {
     struct Message {
         // Message ID.
@@ -17,9 +16,9 @@ interface IBridge {
         // Message sender address (auto filled).
         address from;
         // Source chain ID (auto filled).
-        uint256 srcChainId;
+        uint64 srcChainId;
         // Destination chain ID where the `to` address lives (auto filled).
-        uint256 destChainId;
+        uint64 destChainId;
         // User address of the bridged asset.
         address user;
         // Destination address.
@@ -42,7 +41,7 @@ interface IBridge {
     struct Context {
         bytes32 msgHash; // Message hash.
         address from; // Sender's address.
-        uint256 srcChainId; // Source chain ID.
+        uint64 srcChainId; // Source chain ID.
     }
 
     /// @notice Sends a message to the destination chain and takes custody

@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import { AddressManager } from "../../contracts/common/AddressManager.sol";
 import { IBridge, Bridge } from "../../contracts/bridge/Bridge.sol";
-import { EtherVault } from "../../contracts/bridge/EtherVault.sol";
 import { console2 } from "forge-std/console2.sol";
 import { SignalService } from "../../contracts/signal/SignalService.sol";
 import {
@@ -35,12 +34,11 @@ contract BridgeTest is TestBase {
     GoodReceiver goodReceiver;
     Bridge bridge;
     Bridge destChainBridge;
-    EtherVault etherVault;
     SignalService signalService;
     DummyCrossChainSync crossChainSync;
     SkipProofCheckSignal mockProofSignalService;
     UntrustedSendMessageRelayer untrustedSenderContract;
-    uint256 destChainId = 19_389;
+    uint64 destChainId = 19_389;
 
     function setUp() public {
         vm.startPrank(Alice);
@@ -55,16 +53,12 @@ contract BridgeTest is TestBase {
         destChainBridge.init(address(addressManager));
 
         mockProofSignalService = new SkipProofCheckSignal();
-        mockProofSignalService.init(address(addressManager));
+        mockProofSignalService.init();
 
         signalService = new SignalService();
-        signalService.init(address(addressManager));
+        signalService.init();
 
-        etherVault = new EtherVault();
-        etherVault.init(address(addressManager));
-        vm.deal(address(etherVault), 100 ether);
-        etherVault.authorize(address(bridge), true);
-        etherVault.authorize(address(destChainBridge), true);
+        vm.deal(address(destChainBridge), 100 ether);
 
         crossChainSync = new DummyCrossChainSync();
 
@@ -72,7 +66,9 @@ contract BridgeTest is TestBase {
         vm.deal(address(untrustedSenderContract), 10 ether);
 
         addressManager.setAddress(
-            block.chainid, "signal_service", address(mockProofSignalService)
+            uint64(block.chainid),
+            "signal_service",
+            address(mockProofSignalService)
         );
 
         addressManager.setAddress(
@@ -83,15 +79,11 @@ contract BridgeTest is TestBase {
             destChainId, "bridge", address(destChainBridge)
         );
 
-        addressManager.setAddress(
-            block.chainid, "ether_vault", address(etherVault)
-        );
+        addressManager.setAddress(destChainId, "taiko", address(uint160(123)));
 
         addressManager.setAddress(
-            destChainId, "ether_vault", address(etherVault)
+            uint64(block.chainid), "bridge", address(bridge)
         );
-
-        addressManager.setAddress(block.chainid, "bridge", address(bridge));
 
         vm.stopPrank();
     }
@@ -100,7 +92,7 @@ contract BridgeTest is TestBase {
         IBridge.Message memory message = IBridge.Message({
             id: 0,
             from: address(bridge),
-            srcChainId: block.chainid,
+            srcChainId: uint64(block.chainid),
             destChainId: destChainId,
             user: Alice,
             to: Alice,
@@ -139,7 +131,7 @@ contract BridgeTest is TestBase {
         IBridge.Message memory message = IBridge.Message({
             id: 0,
             from: address(bridge),
-            srcChainId: block.chainid,
+            srcChainId: uint64(block.chainid),
             destChainId: destChainId,
             user: Alice,
             to: address(goodReceiver),
@@ -178,7 +170,7 @@ contract BridgeTest is TestBase {
         IBridge.Message memory message = IBridge.Message({
             id: 0,
             from: address(bridge),
-            srcChainId: block.chainid,
+            srcChainId: uint64(block.chainid),
             destChainId: destChainId,
             user: Alice,
             to: address(goodReceiver),
@@ -273,45 +265,10 @@ contract BridgeTest is TestBase {
             value: 0,
             gasLimit: 0,
             fee: 0,
-            destChain: block.chainid
+            destChain: uint64(block.chainid)
         });
 
         vm.expectRevert(Bridge.B_INVALID_CHAINID.selector);
-        bridge.sendMessage{ value: amount }(message);
-    }
-
-    function test_Bridge_send_message_ether_reverts_when_to_is_destination_bridge_address(
-    )
-        public
-    {
-        uint256 amount = 1 wei;
-        IBridge.Message memory message = newMessage({
-            user: Alice,
-            to: address(destChainBridge),
-            value: 0,
-            gasLimit: 0,
-            fee: 0,
-            destChain: destChainId
-        });
-
-        vm.expectRevert(Bridge.B_INVALID_TO.selector);
-        bridge.sendMessage{ value: amount }(message);
-    }
-
-    function test_Bridge_send_message_ether_reverts_when_to_is_zero_address()
-        public
-    {
-        uint256 amount = 1 wei;
-        IBridge.Message memory message = newMessage({
-            user: Alice,
-            to: address(0),
-            value: 0,
-            gasLimit: 0,
-            fee: 0,
-            destChain: destChainId
-        });
-
-        vm.expectRevert(Bridge.B_INVALID_TO.selector);
         bridge.sendMessage{ value: amount }(message);
     }
 
@@ -360,7 +317,7 @@ contract BridgeTest is TestBase {
             destChain: destChainId
         });
 
-        uint256 starterBalanceVault = address(etherVault).balance;
+        uint256 starterBalanceVault = address(bridge).balance;
         uint256 starterBalanceAlice = Alice.balance;
 
         vm.prank(Alice, Alice);
@@ -368,13 +325,11 @@ contract BridgeTest is TestBase {
             bridge.sendMessage{ value: amount + fee }(message);
         assertEq(bridge.isMessageSent(_message), true);
 
-        assertEq(
-            address(etherVault).balance, (starterBalanceVault + amount + fee)
-        );
+        assertEq(address(bridge).balance, (starterBalanceVault + amount + fee));
         assertEq(Alice.balance, (starterBalanceAlice - (amount + fee)));
         bridge.recallMessage(message, "");
 
-        assertEq(address(etherVault).balance, (starterBalanceVault + fee));
+        assertEq(address(bridge).balance, (starterBalanceVault + fee));
         assertEq(Alice.balance, (starterBalanceAlice - fee));
     }
 
@@ -396,19 +351,17 @@ contract BridgeTest is TestBase {
             destChain: destChainId
         });
 
-        uint256 starterBalanceVault = address(etherVault).balance;
+        uint256 starterBalanceVault = address(bridge).balance;
 
         untrustedSenderContract.sendMessage(
             address(bridge), message, amount + fee
         );
 
-        assertEq(
-            address(etherVault).balance, (starterBalanceVault + amount + fee)
-        );
+        assertEq(address(bridge).balance, (starterBalanceVault + amount + fee));
 
         bridge.recallMessage(message, "");
 
-        assertEq(address(etherVault).balance, (starterBalanceVault + fee));
+        assertEq(address(bridge).balance, (starterBalanceVault + fee));
     }
 
     function test_Bridge_send_message_ether_with_processing_fee_invalid_amount()
@@ -524,7 +477,7 @@ contract BridgeTest is TestBase {
     {
         badReceiver = new BadReceiver();
 
-        uint256 dest = 1337;
+        uint64 dest = 1337;
         addressManager.setAddress(dest, "taiko", address(crossChainSync));
 
         addressManager.setAddress(
@@ -533,9 +486,7 @@ contract BridgeTest is TestBase {
 
         addressManager.setAddress(dest, "bridge", address(destChainBridge));
 
-        addressManager.setAddress(dest, "ether_vault", address(etherVault));
-
-        vm.deal(address(etherVault), 100 ether);
+        vm.deal(address(bridge), 100 ether);
 
         addressManager.setAddress(
             dest, "signal_service", address(mockProofSignalService)
@@ -578,7 +529,7 @@ contract BridgeTest is TestBase {
         uint256 value,
         uint256 gasLimit,
         uint256 fee,
-        uint256 destChain
+        uint64 destChain
     )
         internal
         view
@@ -592,7 +543,7 @@ contract BridgeTest is TestBase {
             fee: fee,
             id: 0, // placeholder, will be overwritten
             from: user, // placeholder, will be overwritten
-            srcChainId: block.chainid, // will be overwritten
+            srcChainId: uint64(block.chainid), // will be overwritten
             refundTo: user,
             gasLimit: gasLimit,
             data: "",
